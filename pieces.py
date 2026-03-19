@@ -1,2 +1,10 @@
 class Piece:
-    pass
+    def __init__(self,id:int=-1,type:int=0,team:bool=False,position:list = [-1,-1]):
+        self.id = id
+        self.type = type
+        self.team = team
+        self.position = position
+
+    def __str__(self):
+        return str(self.type)
+    #def move(self,)
