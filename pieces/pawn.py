@@ -16,9 +16,9 @@ class Pawn(Piece):
         elif self.team == True and act_pos[0] > 0 :
                 if board[act_pos[0]-1][act_pos[1]] is None:
                     options.append((act_pos[0]-1,act_pos[1]))
-                if act_pos[1] < 7 and board[act_pos[0] - 1][act_pos[1]+1] is not None and board[act_pos[0] - 1][act_pos[1]+1].team is True:
+                if act_pos[1] < 7 and board[act_pos[0] - 1][act_pos[1]+1] is not None and board[act_pos[0] - 1][act_pos[1]+1].team is False:
                     options.append((act_pos[0]-1,act_pos[1]+1))
-                if act_pos[1] > 0 and board[act_pos[0] - 1][act_pos[1]-1] is not None and board[act_pos[0] - 1][act_pos[1]-1].team is True:
+                if act_pos[1] > 0 and board[act_pos[0] - 1][act_pos[1]-1] is not None and board[act_pos[0] - 1][act_pos[1]-1].team is False:
                     options.append((act_pos[0]-1,act_pos[1]-1))
         return options
         
