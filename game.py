@@ -11,12 +11,12 @@ class Game:
         for x in range(2):
             for y in range(8):
                 id = x*8 + y
-                self.board[x][y] = Piece(id=id,type=1,team=False)
+                self.board[x][y] = Piece(id=id,type=1,is_white=False)
         
         for x in range(6,8):
             for y in range(8):
                 id = x*8 + y
-                self.board[x][y] = Piece(id=id,type=1,team=True)
+                self.board[x][y] = Piece(id=id,type=1,is_white=True)
     
     def show_board(self):
         """Printa a situação atual do tabuleiro"""
@@ -41,7 +41,7 @@ class Game:
     #     for option in options_all:
     #         if (option[0] or option [1]) > 7 or (option[0] or option[1]) < 0:
     #             options_all.remove(option)
-    #         elif self.board[option[0]][option[1]] is not None and self.board[option[0]][option[1]].team == piece.team:
+    #         elif self.board[option[0]][option[1]] is not None and self.board[option[0]][option[1]].is_white == piece.is_white:
     #              options_all.remove(option)
     #     return options_all, piece
 
