@@ -1,4 +1,4 @@
-from pieces import Piece
+from pieces.basic_piece import Piece
 from typing import Optional
 
 
@@ -31,24 +31,27 @@ class Game:
         print(result)
         return result
 
-    def possible_moves(self,act_pos):
-        """Elimina os movimentos não válidos que a peça calculou"""
-        piece = self.board[act_pos[0]][act_pos[1]]
-        if piece is None:
-            return [],None
+    # def possible_moves(self,act_pos):
+    #     """Elimina os movimentos não válidos que a peça calculou"""
+    #     piece = self.board[act_pos[0]][act_pos[1]]
+    #     if piece is None:
+    #         return [],None
         
-        options_all = piece.calculate_moves(act_pos)
-        for option in options_all:
-            if (option[0] or option [1]) > 7 or (option[0] or option[1]) < 0:
-                options_all.remove(option)
-            elif self.board[option[0]][option[1]] is not None and self.board[option[0]][option[1]].team == piece.team:
-                 options_all.remove(option)
-        return options_all, piece
+    #     options_all = piece.calculate_moves(act_pos)
+    #     for option in options_all:
+    #         if (option[0] or option [1]) > 7 or (option[0] or option[1]) < 0:
+    #             options_all.remove(option)
+    #         elif self.board[option[0]][option[1]] is not None and self.board[option[0]][option[1]].team == piece.team:
+    #              options_all.remove(option)
+    #     return options_all, piece
 
     
     def move(self,act_pos,future_pos):
         """Move a peça seleciona e, se for o caso, elimina a peça do oponente"""
-        options, piece = self.possible_moves(act_pos)
+        piece = self.board[act_pos[0]][act_pos[1]]
+        if piece is None:
+            print("Selecione peça válida!")
+        options = piece.calculate_moves(act_pos,self.board)
         print(options)
         if future_pos in options:
             if self.board[future_pos[0]][future_pos[1]] is not None:

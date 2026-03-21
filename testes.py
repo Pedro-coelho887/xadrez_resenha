@@ -1,5 +1,6 @@
 import unittest
-from pieces import Piece
+from pieces.basic_piece import Piece
+from pieces.pawn import Pawn
 from game import Game
 class TestPiece(unittest.TestCase):
 
@@ -14,7 +15,7 @@ class TestPiece(unittest.TestCase):
         #Teste Eliminação
         game_teste.move((0,0),(1,0))
         result = game_teste.show_board()
-        print(repr(result))
+        #print(repr(result))
         self.assertEqual(result, '. . . . . . . . \n1 . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
         #Teste Colisão com mesmo time
         game_teste.move((1,0),(2,0))
@@ -29,8 +30,14 @@ class TestPiece(unittest.TestCase):
         game_teste.move((6,0),(7,0))
         game_teste.move((7,0),(8,0))
         result = game_teste.show_board()
-        print(repr(result))
+        #print(repr(result))
         self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n1 . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n1 . . . . . . . \n')
+
+    # def test_pawn(self):
+    #     game_teste = Game()
+    #     game_teste.board[0][0] = Pawn(id=1,team=False)
+    #     game_teste.move((0,0),(1,0))
+    #     result = game_teste.show_board()
 
 if __name__ == "__main__":
     unittest.main()
