@@ -10,7 +10,7 @@ class Rook(Piece):
         while i < 8 and board[i][act_pos[1]] is None:
             options.append((i,act_pos[1]))
             i += 1
-        if i < 8 and board[i][act_pos[1]] is not None and board[i][act_pos[1]].is_white != board[act_pos[0]][act_pos[1]].is_white:
+        if i < 8 and board[i][act_pos[1]] is not None and board[i][act_pos[1]].is_white != self.is_white:
             options.append((i,act_pos[1]))
         
         # Opções a esquerda
@@ -18,7 +18,7 @@ class Rook(Piece):
         while i >=0 and board[i][act_pos[1]] is None:
             options.append((i,act_pos[1]))
             i -= 1
-        if i >= 0 and board[i][act_pos[1]] is not None and board[i][act_pos[1]].is_white != board[act_pos[0]][act_pos[1]].is_white:
+        if i >= 0 and board[i][act_pos[1]] is not None and board[i][act_pos[1]].is_white != self.is_white:
             options.append((i,act_pos[1]))
 
         # Opções para baixo
@@ -26,7 +26,7 @@ class Rook(Piece):
         while j < 8 and board[act_pos[0]][j] is None:
             options.append((act_pos[0],j))
             j += 1
-        if j < 8 and board[act_pos[0]][j] is not None and board[act_pos[0]][j].is_white != board[act_pos[0]][act_pos[1]].is_white:
+        if j < 8 and board[act_pos[0]][j] is not None and board[act_pos[0]][j].is_white != self.is_white:
             options.append((act_pos[0],j))
         
         # Opções para cima
@@ -34,7 +34,7 @@ class Rook(Piece):
         while j >= 0 and board[act_pos[0]][j] is None:
             options.append((act_pos[0],j))
             j -= 1
-        if j >= 0 and board[act_pos[0]][j] is not None and board[act_pos[0]][j].is_white != board[act_pos[0]][act_pos[1]].is_white:
+        if j >= 0 and board[act_pos[0]][j] is not None and board[act_pos[0]][j].is_white != self.is_white:
             options.append((act_pos[0],j))
         return options
         
