@@ -1,11 +1,11 @@
 from pieces.basic_piece import Piece
-class Rook(Piece):
+class Queen(Piece):
     def __init__(self,id,is_white):
-        super().__init__(id=id,type=3,is_white=is_white)
+        super().__init__(id=id,type=6,is_white=is_white)
 
     def calculate_moves(self, act_pos, board):
         options = []
-        directions = [(1,0),(0,1),(-1,0),(0,-1)]
+        directions = [(1,0),(0,1),(-1,0),(0,-1),(1,1),(-1,1),(-1,-1),(1,-1)]
         for dx,dy in directions:
             nx, ny = act_pos[0] + dx, act_pos[1] + dy
             while 0 <= nx < 8 and 0 <= ny < 8 and board[nx][ny] is None:
@@ -16,4 +16,3 @@ class Rook(Piece):
                 options.append((nx,ny))
 
         return options
-        

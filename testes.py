@@ -4,6 +4,7 @@ from pieces.pawn import Pawn
 from pieces.rook import Rook
 from pieces.king import King
 from pieces.bishop import Bishop
+from pieces.queen import Queen
 from game import Game
 class TestPiece(unittest.TestCase):
 
@@ -134,6 +135,23 @@ class TestPiece(unittest.TestCase):
         result = game_teste.show_board()
         self.assertEqual(result,'. . 3 . . . . . \n. 5 . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
 
+    def test_queen(self):
+        game_teste = Game()
+        # Movimento Básico Rainha
+        game_teste.board[4][4] = Queen(id=1,is_white=True)
+        game_teste.move((4,4),(5,5))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . 6 . . \n. . . . . . . . \n. . . . . . . . \n')
+        # Eliminação Time oposto
+        game_teste.board[5][2] = Pawn(id=2,is_white = False)
+        game_teste.move((5,5),(5,2))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . 6 . . . . . \n. . . . . . . . \n. . . . . . . . \n' )
+        #Colisão Mesmo Time
+        game_teste.board[7][0] = King(id=3,is_white = True)
+        game_teste.move((5,2),(7,0))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . 6 . . . . . \n. . . . . . . . \n4 . . . . . . . \n')
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestPiece.test_rook")
+    unittest.main(verbosity=2, defaultTest="TestPiece.test_queen")
     #unittest.main()
