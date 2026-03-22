@@ -3,6 +3,7 @@ from pieces.basic_piece import Piece
 from pieces.pawn import Pawn
 from pieces.rook import Rook
 from pieces.king import King
+from pieces.bishop import Bishop
 from game import Game
 class TestPiece(unittest.TestCase):
 
@@ -102,7 +103,7 @@ class TestPiece(unittest.TestCase):
         result = game_teste.show_board()
         self.assertEqual(result,'4 . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
         print(repr(result))
-        # Eliminação
+        # Eliminação Time Oposto
         game_teste.board[2][5] = Rook(id=2,is_white = False)
         game_teste.move((0,0),(1,0))
         game_teste.move((2,5),(2,1))
@@ -114,6 +115,25 @@ class TestPiece(unittest.TestCase):
         game_teste.move((2,1),(1,2))
         result = game_teste.show_board()
         self.assertEqual(result,'. . . . . . . . \n. . 2 . . . . . \n. 4 . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
-        
+
+    def test_bishop(self):
+        game_teste = Game()
+        # Movimento Básico Bispo
+        game_teste.board[5][5] = Bishop(id=1,is_white=True)
+        game_teste.move((5,5),(7,7))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . 5 \n')
+        # Eliminação Time oposto
+        game_teste.board[1][1] = Pawn(id=2,is_white = False)
+        game_teste.move((7,7),(1,1))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . . . . . . . \n. 5 . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
+        # Colisão Mesmo Time
+        game_teste.board[0][2] = Rook(id=3,is_white = True)
+        game_teste.move((1,1),(0,2))
+        result = game_teste.show_board()
+        self.assertEqual(result,'. . 3 . . . . . \n. 5 . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
+
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestPiece.test_king")
+    unittest.main(verbosity=2, defaultTest="TestPiece.test_rook")
+    #unittest.main()
