@@ -173,5 +173,5 @@ class TestPiece(unittest.TestCase):
         self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . 4 . . \n. . . 7 2 . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestPiece.test_knight")
-    #unittest.main()
+    #unittest.main(verbosity=2, defaultTest="TestPiece.test_knight")
+    unittest.main()
