@@ -5,6 +5,10 @@ class Pawn(Piece):
     
     def calculate_moves(self, act_pos, board):
         options = []
+        # Estudo de nova implementação:
+        # directions = [(1,0),(-1,0)]
+        # if self.is_white:
+        #     nx,ny = act_pos[0] + 1
         if not self.is_white and act_pos[0] < 7:
                 if board[act_pos[0]+1][act_pos[1]] is None:
                     options.append((act_pos[0]+1,act_pos[1]))
