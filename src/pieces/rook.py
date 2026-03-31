@@ -3,7 +3,7 @@ class Rook(Piece):
     def __init__(self,id,is_white):
         super().__init__(id=id,type=3,is_white=is_white)
 
-    def calculate_moves(self, act_pos, board):
+    def calculate_moves(self, act_pos, board,calculate_possible_targets = False):
         options = []
         directions = [(1,0),(0,1),(-1,0),(0,-1)]
         for dx,dy in directions:
@@ -12,8 +12,7 @@ class Rook(Piece):
                 options.append((nx,ny))
                 nx += dx
                 ny += dy
-            if (0 <= nx <8 and 0 <= ny < 8) and board[nx][ny].is_white != self.is_white:
+            if (0 <= nx <8 and 0 <= ny < 8) and (board[nx][ny].is_white != self.is_white or calculate_possible_targets):
                 options.append((nx,ny))
-
         return options
         
