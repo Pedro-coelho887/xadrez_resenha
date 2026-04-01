@@ -1,12 +1,15 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 import unittest
-from src.pieces.basic_piece import Piece
-from src.pieces.pawn import Pawn
-from src.pieces.rook import Rook
-from src.pieces.king import King
-from src.pieces.bishop import Bishop
-from src.pieces.queen import Queen
-from src.pieces.knight import Knight
-from src.game import Game
+from pieces.basic_piece import Piece # type: ignore
+from pieces.pawn import Pawn # type: ignore
+from pieces.rook import Rook # type: ignore
+from pieces.king import King # type: ignore
+from pieces.bishop import Bishop # type: ignore
+from pieces.queen import Queen # type: ignore
+from pieces.knight import Knight # type: ignore
+from game import Game # type: ignore
 
 # Testes de Colisão Desativados por mudança na função move
 class TestPiece(unittest.TestCase):
@@ -83,10 +86,10 @@ class TestPiece(unittest.TestCase):
         result = game_teste.show_board()
         self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n3 . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
         # Eliminação com Torre
-        game_teste.board[2][5] = Pawn(id=2,is_white = False)
-        game_teste.move((2,0),(2,6))
-        game_teste.move((2,0),(2,5))
-        result = game_teste.show_board()
+        # game_teste.board[2][5] = Pawn(id=2,is_white = False)
+        # game_teste.move((2,0),(2,6))
+        # game_teste.move((2,0),(2,5))
+        # result = game_teste.show_board()
         # Colisão com mesmo Time
         # game_teste.board[0][5] = Rook(id=3,is_white=False)
         # game_teste.board[2][7] = Pawn(id=4,is_white=True)
@@ -170,5 +173,5 @@ class TestPiece(unittest.TestCase):
         # self.assertEqual(result,'. . . . . . . . \n. . . . . . . . \n. . . . . 4 . . \n. . . 7 2 . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n. . . . . . . . \n')
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestPiece.test_pawn")
-    #unittest.main()
+    #unittest.main(verbosity=2, defaultTest="TestPiece.test_pawn")
+    unittest.main()

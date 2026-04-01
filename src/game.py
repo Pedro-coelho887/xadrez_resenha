@@ -12,6 +12,7 @@ class Game:
         self.board: list[list[Optional[Piece]]] = [[None] * 8 for _ in range(8)]
         self.targets = {'black':set(),'white':set()}
         self.kings = {'black':(0,4),'white':(7,4)}
+        self.in_check = False
 
     def fill_pieces(self):
         """Preenche Tabuleiro com peças padrão"""
@@ -32,6 +33,8 @@ class Game:
                 self.board[x][y] = piece
 
     def calculate_all_targets(self):
+        self.targets["white"] = set()
+        self.targets["black"] = set()
         for x in range(8):
             for y in range(8):
                 if self.board[x][y] is not None:
@@ -44,9 +47,10 @@ class Game:
                         for pos in options:
                             self.targets["black"].add(pos)
 
-    def new_game(self):
+    def new_game(self,test = False):
         """Inicia um novo jogo"""
-        self.fill_pieces()
+        if not test:
+            self.fill_pieces()
         self.calculate_all_targets()
         while True:
             black_played = True
@@ -88,10 +92,14 @@ class Game:
             else:
                 self.kings["black"] = (future_pos[0],future_pos[1])
 
-    def valid_check(self):
+    def valid_check(self,piece):
         self.calculate_all_targets()
-        if self.kings["white"] in self.targets["black"] or self.kings["black"] in self.targets["white"]:
-            print("check!")
+        if self.kings["white"] not in self.targets["black"] and self.kings["black"] not in self.targets["white"]:
+            self.in_check = False
+            return
+        self.in_check = True
+        print("check!")
+        
 
     def player_turn(self,is_white):
         """Ciclo completo de uma jogada"""
@@ -104,18 +112,27 @@ class Game:
         if piece is None or piece.is_white != is_white:
             print("Selecione uma peça válida!")
             return False
-        options = piece.calculate_moves(act_pos,self.board)
+        # Movimentação Rei
+        if piece.type == 4 and piece.is_white == True:
+            options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["black"]) # type: ignore
+        elif piece.type == 4 and piece.is_white == False:
+             options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["white"]) # type: ignore
+        # Movimentação outras peças
+        else:
+            options = piece.calculate_moves(act_pos,self.board)
+
         if not options:
             print("Selecione uma peça válida!")
             return False
+        
         print(options)
         movimento = int(input("Selecione o Movimento desejado:"))
-        if movimento > len(options):
+        if movimento not in range(len(options)):
             print("Selecione um Movimento Válido!")
             return False
         future_pos = options[movimento]
         self.move(act_pos,future_pos)
-        self.valid_check()
+        self.valid_check(piece)
         return True
 
     
