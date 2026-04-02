@@ -13,6 +13,8 @@ class Game:
         self.targets = {'black':set(),'white':set()}
         self.kings = {'black':(0,4),'white':(7,4)}
         self.in_check = False
+        self.checkmate = False
+        self.options_to_stop_check = [(-1,-1)]
 
     def fill_pieces(self):
         """Preenche Tabuleiro com peças padrão"""
@@ -39,7 +41,12 @@ class Game:
             for y in range(8):
                 if self.board[x][y] is not None:
                     piece = self.board[x][y]
-                    options = piece.calculate_moves((x,y),self.board,calculate_possible_targets=True) #type:ignore
+                    if piece.type == 4 and piece.is_white: #type:ignore
+                        options = piece.calculate_moves((x,y),self.board,enemy_targets = self.targets["black"],calculate_possible_targets=True) #type:ignore
+                    elif piece.type == 4 and not piece.is_white: #type:ignore
+                        options = piece.calculate_moves((x,y),self.board,enemy_targets = self.targets["white"]) # type: ignore
+                    else:
+                        options = piece.calculate_moves((x,y),self.board,calculate_possible_targets=True) #type:ignore
                     if piece.is_white: #type:ignore    
                         for pos in options:
                             self.targets["white"].add(pos)
@@ -52,7 +59,7 @@ class Game:
         if not test:
             self.fill_pieces()
         self.calculate_all_targets()
-        while True:
+        while not self.checkmate:
             black_played = True
             white_played = False
             self.show_board()
@@ -92,14 +99,22 @@ class Game:
             else:
                 self.kings["black"] = (future_pos[0],future_pos[1])
 
-    def valid_check(self,piece):
+    def valid_check(self,piece,act_pos):
         self.calculate_all_targets()
-        if self.kings["white"] not in self.targets["black"] and self.kings["black"] not in self.targets["white"]:
+        atk_team = "white" if piece.is_white == True else "black"
+        deff_team = "black" if atk_team == "white" else "white"
+        # Se não estiver em Check, retorna
+        if self.kings[deff_team] not in self.targets[atk_team]:
+            self.options_to_stop_check = []
             self.in_check = False
             return
-        self.in_check = True
         print("check!")
-        
+        self.in_check = True
+        self.options_to_stop_check = piece.calculate_moves(act_pos,self.board,calculate_possible_targets = False,atk_check = True,king_pos = self.kings[deff_team])
+
+        if not any(op in self.options_to_stop_check for op in self.targets[deff_team]): #type:ignore
+            print("checkmate!" + atk_team + " venceu!")
+            self.checkmate = True
 
     def player_turn(self,is_white):
         """Ciclo completo de uma jogada"""
@@ -112,15 +127,18 @@ class Game:
         if piece is None or piece.is_white != is_white:
             print("Selecione uma peça válida!")
             return False
+        # Calculo de Movimentos
+        options = []
+        
         # Movimentação Rei
         if piece.type == 4 and piece.is_white == True:
             options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["black"]) # type: ignore
         elif piece.type == 4 and piece.is_white == False:
-             options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["white"]) # type: ignore
+            options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["white"]) # type: ignore
         # Movimentação outras peças
         else:
-            options = piece.calculate_moves(act_pos,self.board)
-
+            options = piece.calculate_moves(act_pos,self.board,deff_check=self.in_check,options_to_stop_check = self.options_to_stop_check)
+    
         if not options:
             print("Selecione uma peça válida!")
             return False
@@ -132,7 +150,7 @@ class Game:
             return False
         future_pos = options[movimento]
         self.move(act_pos,future_pos)
-        self.valid_check(piece)
+        self.valid_check(piece,future_pos)
         return True
 
     

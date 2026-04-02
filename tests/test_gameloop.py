@@ -39,15 +39,16 @@ class TestChecks(unittest.TestCase):
             game_test.show_board()
         self.assertEqual(game_test.in_check,False)
         # Move Rainha para retornar o Check e depois mata Rainha com Cavalo.
-        with patch('builtins.input',side_effect=[4,7,7,2,5,1]):
+        with patch('builtins.input',side_effect=[4,7,7,2,5,0]):
             game_test.player_turn(is_white=True)
             self.assertEqual(game_test.in_check,True)
             game_test.player_turn(is_white=False)
+            game_test.show_board()
             self.assertEqual(game_test.in_check,False)   
             game_test.show_board()
         # Cria Torre e Move ela para dar check no rei. Usa o Rei para matar a Torre.
         game_test.board[0][5] = Rook(id=4, is_white=True)
-        with patch('builtins.input',side_effect=[0,5,6,7,6,2]):
+        with patch('builtins.input',side_effect=[0,5,6,7,6,1]):
             game_test.player_turn(is_white=True)
             self.assertEqual(game_test.in_check,True)
             game_test.show_board()
@@ -55,6 +56,56 @@ class TestChecks(unittest.TestCase):
             self.assertEqual(game_test.in_check,False)
             game_test.show_board()
 
+    def test_basic_checkmate(self):
+        game_test = Game()
+        game_test.board[0][0] = Rook(is_white = False,id=1)
+        game_test.board[1][1] = Rook(is_white=False,id=2)
+        game_test.board[7][7] = King(is_white=True,id=3)
+        game_test.kings["white"] = (7,7)
+        game_test.kings["black"] = (-1,-1)
+        # Move torre para ultima linha, rei em cheque, depois tira o rei do cheque
+        with patch('builtins.input',side_effect=[0,0,6,7,7,0]):
+            game_test.player_turn(is_white=False)
+            self.assertEqual(game_test.in_check,True)
+            game_test.show_board()
+            game_test.player_turn(is_white = True)
+            game_test.show_board()
+            self.assertEqual(game_test.in_check,False)
+        # Encurrala Rei, e dá check novamente.
+        with patch('builtins.input',side_effect=[1,1,3,6,7,0,7,0,7]):
+            game_test.player_turn(is_white=False)
+            game_test.show_board()
+            game_test.player_turn(is_white = True)
+            game_test.show_board()
+            game_test.player_turn(is_white=False)
+            game_test.show_board()
+            self.assertEqual(game_test.in_check,True)
+        # Rei Foge, depois checkmate
+        with patch('builtins.input',side_effect=[6,6,0,5,1,1]):
+            game_test.player_turn(is_white=True)
+            game_test.show_board()
+            game_test.player_turn(is_white=False)
+            game_test.show_board()
+            print(game_test.options_to_stop_check)
+            print(game_test.targets)
+            # game_test.player_turn(is_white=False)
+            # self.assertEqual(game_test.in_check,False)
+            # game_test.show_board()
+
+    def test_advanced_checkmate(self):
+        game_test = Game()
+        game_test.board[0][7] = King(id=1,is_white=True)
+        game_test.kings["white"] = (0,7)
+        game_test.kings["black"] = (-1,-1)
+        game_test.board[7][6] = Queen(id=1,is_white=False)
+        game_test.board[3][4] = Bishop(id=2,is_white=False)
+        with patch('builtins.input',side_effect=[7,6,6]):
+            game_test.player_turn(is_white=False)
+        print(game_test.options_to_stop_check)
+        print(game_test.targets["white"])
+        print(game_test.targets["black"])
+        game_test.show_board()
+
 
 if __name__ == "__main__":
-    unittest.main()
+    unittest.main(verbosity=2, defaultTest="TestChecks.test_advanced_checkmate")
