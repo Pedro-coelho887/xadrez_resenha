@@ -7,7 +7,7 @@ class Pawn(Piece):
         options = []
         # Caso esteja aplicando check
         if atk_check:
-            options.append((act_pos[0],act_pos[1]))
+            options.append(act_pos)
             return options
         
         for x,y in self.directions:

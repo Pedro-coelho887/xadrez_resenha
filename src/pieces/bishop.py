@@ -20,7 +20,7 @@ class Bishop(Piece):
                 if king_pos not in options:
                     options.clear()
                 else:
-                    options.append((act_pos[0],act_pos[1]))
+                    options.append(act_pos)
                     break
         if deff_check and options_to_stop_check:
             options = [op for op in options if op in options_to_stop_check]

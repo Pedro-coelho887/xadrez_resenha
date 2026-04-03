@@ -61,8 +61,9 @@ class TestChecks(unittest.TestCase):
         game_test.board[0][0] = Rook(is_white = False,id=1)
         game_test.board[1][1] = Rook(is_white=False,id=2)
         game_test.board[7][7] = King(is_white=True,id=3)
+        game_test.board[0][7] = King(is_white=False,id=4)
         game_test.kings["white"] = (7,7)
-        game_test.kings["black"] = (-1,-1)
+        game_test.kings["black"] = (0,7)
         # Move torre para ultima linha, rei em cheque, depois tira o rei do cheque
         with patch('builtins.input',side_effect=[0,0,6,7,7,0]):
             game_test.player_turn(is_white=False)
@@ -94,18 +95,32 @@ class TestChecks(unittest.TestCase):
 
     def test_advanced_checkmate(self):
         game_test = Game()
-        game_test.board[0][7] = King(id=1,is_white=True)
-        game_test.kings["white"] = (0,7)
-        game_test.kings["black"] = (-1,-1)
-        game_test.board[7][6] = Queen(id=1,is_white=False)
-        game_test.board[3][4] = Bishop(id=2,is_white=False)
-        with patch('builtins.input',side_effect=[7,6,6]):
+        game_test.kings["black"] = (7,0)
+        game_test.kings["white"] = (0,4)
+        game_test.board[0][4] = King(id=1,is_white=True)
+        game_test.board[7][0] = King(id=6,is_white=True)
+        game_test.board[0][5] = Bishop(id=2,is_white=True)
+        game_test.board[0][3] = Rook(id=3,is_white=True)
+        game_test.board[5][5] = Queen(id=4,is_white=False)
+        game_test.board[5][1] = Bishop(id=5,is_white=False)
+        with patch('builtins.input',side_effect=[5,1,2,5,5,7]):
             game_test.player_turn(is_white=False)
+            game_test.show_board()
+            game_test.player_turn(is_white=False)
+            game_test.show_board()
+        print(game_test.targets["black"])
         print(game_test.options_to_stop_check)
         print(game_test.targets["white"])
-        print(game_test.targets["black"])
-        game_test.show_board()
+        print(game_test.kings["white"])
+        
+        # print(game_test.options_to_stop_check)
+        # print(game_test.targets["white"])
+        # print(game_test.targets["black"])
+        # with patch('builtins.input',side_effect=[0,7,0]):
+        #     game_test.player_turn(is_white=True)
+        #print(game_test.board[0][7].calculate_moves())
+        
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestChecks.test_advanced_checkmate")
+    unittest.main(verbosity=2, defaultTest="TestChecks.test_basic_checkmate")

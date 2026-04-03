@@ -39,21 +39,23 @@ class Game:
         self.targets["black"] = set()
         for x in range(8):
             for y in range(8):
-                if self.board[x][y] is not None:
+                if self.board[x][y] is not None and self.board[x][y].type != 4: #type:ignore
                     piece = self.board[x][y]
-                    if piece.type == 4 and piece.is_white: #type:ignore
-                        options = piece.calculate_moves((x,y),self.board,enemy_targets = self.targets["black"],calculate_possible_targets=True) #type:ignore
-                    elif piece.type == 4 and not piece.is_white: #type:ignore
-                        options = piece.calculate_moves((x,y),self.board,enemy_targets = self.targets["white"]) # type: ignore
-                    else:
-                        options = piece.calculate_moves((x,y),self.board,calculate_possible_targets=True) #type:ignore
+                    options = piece.calculate_moves((x,y),self.board,calculate_possible_targets=True) #type:ignore
                     if piece.is_white: #type:ignore    
                         for pos in options:
                             self.targets["white"].add(pos)
                     else:
                         for pos in options:
                             self.targets["black"].add(pos)
-
+        # adição targets kings
+        w_king_opts = self.board[self.kings["white"][0]][self.kings["white"][1]].calculate_moves(self.kings["white"],self.board,enemy_targets = self.targets["black"],calculate_possible_targets=True) #type:ignore
+        for pos in w_king_opts:
+            self.targets["white"].add(pos)
+        b_king_opts = self.board[self.kings["black"][0]][self.kings["black"][1]].calculate_moves(self.kings["black"],self.board,enemy_targets = self.targets["white"],calculate_possible_targets=True) #type:ignore
+        for pos in b_king_opts:
+            self.targets["black"].add(pos)
+        
     def new_game(self,test = False):
         """Inicia um novo jogo"""
         if not test:
@@ -111,8 +113,9 @@ class Game:
         print("check!")
         self.in_check = True
         self.options_to_stop_check = piece.calculate_moves(act_pos,self.board,calculate_possible_targets = False,atk_check = True,king_pos = self.kings[deff_team])
-
-        if not any(op in self.options_to_stop_check for op in self.targets[deff_team]): #type:ignore
+        deff_king_options = self.board[self.kings[deff_team][0]][self.kings[deff_team][1]].calculate_moves(self.kings[deff_team],self.board,enemy_targets = self.targets[atk_team]) #type:ignore
+        if not any(op in self.options_to_stop_check for op in self.targets[deff_team]) and not deff_king_options : #type:ignore
+            print(deff_king_options)
             print("checkmate!" + atk_team + " venceu!")
             self.checkmate = True
 

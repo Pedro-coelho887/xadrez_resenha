@@ -7,7 +7,7 @@ class Knight(Piece):
         options = []
         # Caso esteja aplicando check
         if atk_check:
-            options.append((act_pos[0],act_pos[1]))
+            options.append(act_pos)
             return options
         # Calculo Movimentos Base
         for dx,dy in self.directions:
