@@ -115,7 +115,6 @@ class Game:
         self.options_to_stop_check = piece.calculate_moves(act_pos,self.board,calculate_possible_targets = False,atk_check = True,king_pos = self.kings[deff_team])
         deff_king_options = self.board[self.kings[deff_team][0]][self.kings[deff_team][1]].calculate_moves(self.kings[deff_team],self.board,enemy_targets = self.targets[atk_team]) #type:ignore
         if not any(op in self.options_to_stop_check for op in self.targets[deff_team]) and not deff_king_options : #type:ignore
-            print(deff_king_options)
             print("checkmate!" + atk_team + " venceu!")
             self.checkmate = True
 
