@@ -18,7 +18,7 @@ class Game:
 
     def fill_pieces(self):
         """Preenche Tabuleiro com peças padrão"""
-        pieces_init = {0:Rook, 1:Knight, 2:Bishop, 3:Queen, 4:King, 5:Bishop, 6:Knight, 7:Rook}
+        pieces_init = {0:Rook, 1:Knight, 2:Bishop, 3:King, 4:Queen, 5:Bishop, 6:Knight, 7:Rook}
         for x in [0,1,6,7]:
             is_white = x>2
 
