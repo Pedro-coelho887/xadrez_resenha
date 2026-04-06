@@ -4,11 +4,17 @@ const pieces_dict = {
     5:"bishop.png>", 6:"queen.png>", 7:"knight.png>"
 }
 async function renderBoard() {
+    board.innerHTML = '';
     const board_info = await fetchBoard()
     for (let row=0;row<8;row++){
         for (let col = 0; col<8;col++){
             const cell = document.createElement("div");
             cell.classList.add("cell");
+            cell.dataset.row = row;
+            cell.dataset.col = col;
+
+            cell.addEventListener("click", () => onCellClick(row, col));
+            
             if ((row + col) % 2 == 0){
                 cell.classList.add("light");
             }
@@ -30,6 +36,34 @@ async function renderBoard() {
             board.appendChild(cell)
         }
     
+    }
+}
+
+function highlightMoves(moves) {
+    // remove highlights anteriores
+    document.querySelectorAll(".highlight").forEach(cell => {
+        cell.classList.remove("highlight");
+    });
+    // adiciona highlight nas novas opções
+    moves.forEach(([row, col]) => {
+        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+        if (cell) cell.classList.add("highlight");
+    });
+}
+
+let selectedCell = null;  // guarda a posição da peça selecionada
+let currentMoves = [];    // guarda os moves possíveis atuais
+
+async function onCellClick(row, col) {
+    if (selectedCell && currentMoves.some(([r, c]) => r === row && c === col)) {
+        await fetchMove(selectedCell[0], selectedCell[1], row, col);
+        selectedCell = null;
+        currentMoves = [];
+        await renderBoard();
+    } else {
+        selectedCell = [row, col];
+        currentMoves = await fetchPossibleMoves(row, col);
+        highlightMoves(currentMoves);  // ← mantém o highlight aqui
     }
 }
 renderBoard();
