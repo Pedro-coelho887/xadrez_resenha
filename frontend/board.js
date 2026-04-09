@@ -3,6 +3,9 @@ const pieces_dict = {
     2:"pawn.png>", 3:"rook.png>", 4:"king.png>",
     5:"bishop.png>", 6:"queen.png>", 7:"knight.png>"
 }
+let selectedCell = null;
+let currentMoves = [];    
+let isWhiteTurn = true;
 async function renderBoard() {
     board.innerHTML = '';
     const board_info = await fetchBoard()
@@ -50,19 +53,16 @@ function highlightMoves(moves) {
         if (cell) cell.classList.add("highlight");
     });
 }
-
-let selectedCell = null;  // guarda a posição da peça selecionada
-let currentMoves = [];    // guarda os moves possíveis atuais
-
 async function onCellClick(row, col) {
     if (selectedCell && currentMoves.some(([r, c]) => r === row && c === col)) {
-        await fetchMove(selectedCell[0], selectedCell[1], row, col);
+        await fetchMove(selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
+        isWhiteTurn = !isWhiteTurn
         selectedCell = null;
         currentMoves = [];
         await renderBoard();
     } else {
         selectedCell = [row, col];
-        currentMoves = await fetchPossibleMoves(row, col);
+        currentMoves = await fetchPossibleMoves(row, col,isWhiteTurn);
         highlightMoves(currentMoves);  // ← mantém o highlight aqui
     }
 }

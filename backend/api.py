@@ -42,17 +42,15 @@ def get_board():
 
 @app.post("/possible_moves")
 def possible_moves(data:dict):
-    position = data["position"]
-    piece = game.board[position[0]][position[1]]
-    if piece is not None:
-        options = piece.calculate_moves(position,game.board,deff_check=game.in_check,options_to_stop_check = game.options_to_stop_check)
-    else:
-        options = []
-    return {"moves":options}
+    position = tuple(data["position"])
+    is_white = data["is_white"]
+    moves = game.get_moves(position,is_white)
+    return {"moves": moves}
 
 @app.post("/move")
 def move(data:dict):
-    act_pos = data["position"]["actual"]
-    new_pos = data["position"]["new"]
-    game.move(act_pos,new_pos)
-    return {"status": "ok"}
+    act_pos = tuple(data["position"]["actual"])
+    new_pos = tuple(data["position"]["new"])
+    is_white = data["is_white"]
+    sucess = game.execute_move(act_pos,new_pos,is_white)
+    return {"status": "ok" if sucess else "invalid"}

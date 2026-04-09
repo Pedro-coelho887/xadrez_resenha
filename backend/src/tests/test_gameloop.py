@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
 import unittest
 from unittest.mock import patch
 from pieces.basic_piece import Piece # type: ignore
@@ -14,12 +14,14 @@ from game import Game # type: ignore
 class TestChecks(unittest.TestCase):
     def test_simpleCheck(self):
         game_test = Game()
-        game_test.kings["black"] = (-1,-1)
+        print(20*"="+" Teste 1 "+20*"=")
         game_test.kings["white"] = (-1,-1)
         game_test.board[3][3] = Queen(id=1,is_white=True)
         game_test.board[2][5] = Knight(id=2, is_white = False)
         game_test.board[7][7] = King(id=3,is_white = False)
         game_test.kings["black"] = (7,7)
+        game_test.board[0][0] = King(id=3,is_white = True)
+        game_test.kings["black"] = (0,0)
         # Movimenta Rainha
         with patch('builtins.input', side_effect=[3, 3, 0]):
             game_test.player_turn(is_white=True)
@@ -90,7 +92,7 @@ class TestChecks(unittest.TestCase):
             print(game_test.options_to_stop_check)
             print(game_test.targets)
             # game_test.player_turn(is_white=False)
-            # self.assertEqual(game_test.in_check,False)
+            self.assertEqual(game_test.checkmate,True)
             # game_test.show_board()
 
     def test_advanced_checkmate(self):
@@ -108,10 +110,7 @@ class TestChecks(unittest.TestCase):
             game_test.show_board()
             game_test.player_turn(is_white=False)
             game_test.show_board()
-        print(game_test.targets["black"])
-        print(game_test.options_to_stop_check)
-        print(game_test.targets["white"])
-        print(game_test.kings["white"])
+        self.assertEqual(game_test.checkmate,True)
         
         # print(game_test.options_to_stop_check)
         # print(game_test.targets["white"])
@@ -123,4 +122,5 @@ class TestChecks(unittest.TestCase):
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2, defaultTest="TestChecks.test_basic_checkmate")
+    #unittest.main(verbosity=2, defaultTest="TestChecks.test_basic_checkmate")
+    unittest.main()
