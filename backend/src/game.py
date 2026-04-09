@@ -39,7 +39,7 @@ class Game:
         self.targets["black"] = set()
         for x in range(8):
             for y in range(8):
-                if self.board[x][y] is not None and self.board[x][y].type != 4: #type:ignore
+                if self.board[x][y] is not None: #type:ignore
                     piece = self.board[x][y]
                     options = piece.calculate_moves((x,y),self.board) #type:ignore
                     if piece.is_white: #type:ignore    
@@ -48,30 +48,7 @@ class Game:
                     else:
                         for pos in options:
                             self.targets["black"].add(pos)
-        # adição targets kings
-        w_king_opts = self.board[self.kings["white"][0]][self.kings["white"][1]].calculate_moves(self.kings["white"],self.board) #type:ignore
-        for pos in w_king_opts:
-            self.targets["white"].add(pos)
-        b_king_opts = self.board[self.kings["black"][0]][self.kings["black"][1]].calculate_moves(self.kings["black"],self.board) #type:ignore
-        for pos in b_king_opts:
-            self.targets["black"].add(pos)
         
-    def new_game(self,test = False):
-        """Inicia um novo jogo"""
-        if not test:
-            self.fill_pieces()
-        
-        while not self.checkmate:
-            black_played = True
-            white_played = False
-            self.show_board()
-            if black_played:
-                is_white = True
-                white_played = self.player_turn(is_white)
-                self.show_board()
-            if white_played:
-                is_white = False
-                black_played = self.player_turn(is_white)
     
     def show_board(self):
         """Printa a situação atual do tabuleiro"""
@@ -113,7 +90,7 @@ class Game:
         # Retorna 0 se não há check, -1 se o time da peça movida está em cheque e 1 se o time da peça movida deu cheque
         if self.kings[atk_team] in self.targets[deff_team]:
             return -1
-        elif self.kings[atk_team] in self.targets[deff_team]:
+        elif self.kings[deff_team] in self.targets[atk_team]:
             return 1
         else:
             return 0
@@ -131,43 +108,6 @@ class Game:
         else:
             return True
         
-    def player_turn(self,is_white):
-        """Ciclo completo de uma jogada"""
-        # Seleção de peça
-        act_row = int(input("Linha da peça a ser movida: "))
-        act_col = int(input("Coluna da peça a ser movida: "))
-        act_pos = (act_row,act_col)
-        # Seleção de Movimento
-        piece = self.board[act_pos[0]][act_pos[1]]
-        if piece is None or piece.is_white != is_white:
-            print("Selecione uma peça válida!")
-            return False
-        # Calculo de Movimentos
-        options = []
-        
-        # Movimentação Rei
-        if piece.type == 4 and piece.is_white == True:
-            options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["black"]) # type: ignore
-        elif piece.type == 4 and piece.is_white == False:
-            options = piece.calculate_moves(act_pos,self.board,enemy_targets = self.targets["white"]) # type: ignore
-        # Movimentação outras peças
-        else:
-            options = piece.calculate_moves(act_pos,self.board,deff_check=self.in_check,options_to_stop_check = self.options_to_stop_check)
-    
-        if not options:
-            print("Selecione uma peça válida!")
-            return False
-        
-        print(options)
-        movimento = int(input("Selecione o Movimento desejado:"))
-        if movimento not in range(len(options)):
-            print("Selecione um Movimento Válido!")
-            return False
-        future_pos = options[movimento]
-        self.move(act_pos,future_pos)
-        self.valid_check(future_pos)
-        return True
-    
     def get_moves(self, act_pos, is_white):
         """Retorna os movimentos válidos para uma peça"""
         piece = self.board[act_pos[0]][act_pos[1]]
@@ -181,8 +121,6 @@ class Game:
 
         return legal_options
     
-
-
     def execute_move(self, act_pos, future_pos, is_white):
         """Executa o movimento e atualiza o estado do jogo"""
         piece = self.board[act_pos[0]][act_pos[1]]
@@ -192,14 +130,18 @@ class Game:
         if tuple(future_pos) not in options:
             return False
         self.move(act_pos, future_pos)
-        self.valid_check(future_pos)
-        return True
+        situation = self.valid_check(future_pos)
+        if situation != 0:
+            print("check!")
+            self.in_check = True
+        else:
+            print("não check")
+            self.in_check = False
     
 
 
 def main():
     game1 = Game()
-    game1.new_game()
 
 
 if __name__ == "__main__":
