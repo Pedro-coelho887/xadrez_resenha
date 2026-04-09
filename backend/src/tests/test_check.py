@@ -76,6 +76,83 @@ class TestCheck(unittest.TestCase):
         result = self.game.execute_move((4, 4), (6, 6), is_white=True)
         self.assertFalse(result)
 
+class TestCheckmate(unittest.TestCase):
+ 
+    def setUp(self):
+        self.game = Game()
+ 
+    # -------------------------
+    # Não é checkmate
+    # -------------------------
+ 
+    def test_check_but_not_checkmate(self):
+        """Check sem checkmate — rei pode escapar"""
+        self.game.board[0][4] = King(id=1, is_white=True)
+        self.game.kings["white"] = (0, 4)
+        self.game.board[0][7] = Rook(id=2, is_white=False)
+        # rei pode se mover para fora da linha
+        self.assertFalse(self.game.valid_checkmate(is_white=True))
+ 
+    def test_check_blockable(self):
+        """Check sem checkmate — peça aliada pode bloquear"""
+        self.game.board[0][4] = King(id=1, is_white=True)
+        self.game.kings["white"] = (0, 4)
+        self.game.board[3][4] = Rook(id=3, is_white=True)   # pode bloquear
+        self.game.board[7][4] = Rook(id=2, is_white=False)  # atacante
+        self.assertFalse(self.game.valid_checkmate(is_white=True))
+ 
+    def test_check_capturable_attacker(self):
+        """Check sem checkmate — peça atacante pode ser capturada"""
+        self.game.board[0][4] = King(id=1, is_white=True)
+        self.game.kings["white"] = (0, 4)
+        self.game.board[0][6] = Rook(id=2, is_white=False)  # atacante capturável
+        self.game.board[2][5] = Rook(id=3, is_white=True)   # pode capturar
+        self.assertFalse(self.game.valid_checkmate(is_white=True))
+ 
+    # -------------------------
+    # Checkmate
+    # -------------------------
+ 
+    def test_back_rank_checkmate(self):
+        """Back rank mate — rei preso na primeira fileira"""
+        self.game.board[0][4] = King(id=1, is_white=True)
+        self.game.kings["white"] = (0, 4)
+        self.game.board[0][3] = Pawn(id=2, is_white=True)   # bloqueia fuga
+        self.game.board[0][5] = Pawn(id=3, is_white=True)   # bloqueia fuga
+        self.game.board[1][3] = Pawn(id=4, is_white=True)   # bloqueia fuga
+        self.game.board[1][4] = Pawn(id=5, is_white=True)   # bloqueia fuga
+        self.game.board[1][5] = Pawn(id=6, is_white=True)   # bloqueia fuga
+        self.game.board[0][7] = Rook(id=7, is_white=False)  # ataca pela fileira
+        self.assertTrue(self.game.valid_checkmate(is_white=True))
+ 
+    # -------------------------
+    # Integração com execute_move
+    # -------------------------
+ 
+    def test_execute_move_sets_checkmate(self):
+        """execute_move deve setar checkmate após movimento decisivo"""
+        self.game.board[0][4] = King(id=1, is_white=False)
+        self.game.kings["black"] = (0, 4)
+        self.game.board[0][3] = Pawn(id=2, is_white=False)
+        self.game.board[1][4] = Pawn(id=4, is_white=False)
+        self.game.board[1][5] = Pawn(id=5, is_white=False)
+        self.game.board[1][3] = Pawn(id=6, is_white=False)
+        self.game.show_board()
+        self.game.board[7][7] = Rook(id=7, is_white=True)  # posição antes do mate
+        self.game.execute_move((7, 7), (0, 7), is_white=True)  # move torre para dar mate
+        self.game.show_board()
+        self.assertTrue(self.game.checkmate)
+ 
+    def test_execute_move_no_checkmate_after_normal_move(self):
+        """execute_move não deve setar checkmate em jogada normal"""
+        self.game.board[4][4] = Pawn(id=1, is_white=True)
+        self.game.board[0][4] = King(id=2, is_white=True)
+        self.game.kings["white"] = (0, 4)
+        self.game.board[7][4] = King(id=3, is_white=False)
+        self.game.kings["black"] = (7, 4)
+        self.game.execute_move((4, 4), (5, 4), is_white=True)
+        self.assertFalse(self.game.checkmate)
+ 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2, buffer=False,defaultTest="TestCheck")
+    unittest.main(verbosity=2, buffer=False,defaultTest="TestCheckmate")

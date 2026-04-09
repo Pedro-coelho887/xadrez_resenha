@@ -95,6 +95,16 @@ class Game:
         else:
             return 0
         
+    def valid_checkmate(self,is_white):
+        """Valida se houve check-mate"""
+        for x in range(8):
+            for y in range(8):
+                if self.get_moves((x,y),is_white):
+                    return False
+
+        return True
+
+
     def simulate_move(self,act_pos,future_pos):
         """Simula o movimento de uma peça"""
         sim_piece = self.board[future_pos[0]][future_pos[1]]
@@ -130,12 +140,13 @@ class Game:
         if tuple(future_pos) not in options:
             return False
         self.move(act_pos, future_pos)
-        situation = self.valid_check(future_pos)
-        if situation != 0:
-            print("check!")
+        in_check = self.valid_check(future_pos)
+        if in_check != 0:
             self.in_check = True
+            self.checkmate = self.valid_checkmate(not is_white)
+            if self.checkmate:
+                print("checkmate! "+f"{is_white}"+" venceu!")
         else:
-            print("não check")
             self.in_check = False
     
 
