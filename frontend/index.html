@@ -5,6 +5,20 @@
     <title>Xadrez</title>
     <link rel="stylesheet" href="style.css">
   </head>
+  <div id="start-modal">
+    <div id="start-content">
+        <h1>♟ Xadrez</h1>
+        <p>Bem-vindo ao jogo</p>
+        <button onclick="startGame()">Iniciar Jogo</button>
+    </div>
+</div>
+  <div id="checkmate-modal" class="hidden">
+    <div id="checkmate-content">
+        <h1>Checkmate!</h1>
+        <p id="winner-text"></p>
+        <button onclick="restartGame()">Jogar Novamente</button>
+    </div>
+</div>
   <body>
     <!-- o que aparece na tela -->
     <div id="board"></div>

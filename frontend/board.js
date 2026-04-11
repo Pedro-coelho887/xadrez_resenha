@@ -41,6 +41,22 @@ async function renderBoard() {
     
     }
 }
+async function renderBoardAnimated() {
+    // fade out nas imagens existentes
+    document.querySelectorAll(".cell img").forEach(img => {
+        img.classList.add("fading");
+    });
+
+    await new Promise(resolve => setTimeout(resolve, 150)); // espera transição
+
+    await renderBoard(); // re-renderiza (limpa e recria o board)
+
+    // força o navegador a reconhecer o estado inicial antes do fade in
+    await new Promise(resolve => setTimeout(resolve, 20));
+    document.querySelectorAll(".cell img").forEach(img => {
+        img.classList.remove("fading");
+    });
+}
 
 function highlightMoves(moves) {
     // remove highlights anteriores
@@ -55,15 +71,53 @@ function highlightMoves(moves) {
 }
 async function onCellClick(row, col) {
     if (selectedCell && currentMoves.some(([r, c]) => r === row && c === col)) {
-        await fetchMove(selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
+        // inicia fade out imediatamente ao clicar
+        const fadePromise = new Promise(resolve => {
+        document.querySelectorAll(".cell img").forEach(img => img.classList.add("fading"));
+        setTimeout(resolve, 150);
+        });
+        const result = await fetchMove(selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
         isWhiteTurn = !isWhiteTurn
         selectedCell = null;
         currentMoves = [];
-        await renderBoard();
+        await fadePromise;
+        await renderBoard(); // re-renderiza
+
+        await new Promise(resolve => setTimeout(resolve, 20));
+        document.querySelectorAll(".cell img").forEach(img => img.classList.remove("fading"));
+        // Tratamento de Check
+        // limpa check anterior
+        document.querySelectorAll(".in_check").forEach(c => c.classList.remove("in-check"));
+        if (result.check.status) {
+            const [r, c] = result.check.king_pos;
+            console.log(r)
+            const kingCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+            console.log(kingCell)
+            if (kingCell) kingCell.classList.add("in_check");
+            if (result.check.checkmate){
+                const winner = isWhiteTurn ? "Azul" : "Rosa";  // isWhiteTurn já foi invertido
+                document.getElementById("winner-text").textContent = `Time ${winner} Ganhou!`;
+                document.getElementById("checkmate-modal").classList.remove("hidden");
+            }
+        }
     } else {
         selectedCell = [row, col];
         currentMoves = await fetchPossibleMoves(row, col,isWhiteTurn);
-        highlightMoves(currentMoves);  // ← mantém o highlight aqui
+        highlightMoves(currentMoves);
     }
 }
+
+async function restartGame() {
+    await fetch("http://127.0.0.1:8000/restart", { method: "POST" });
+    document.getElementById("checkmate-modal").classList.add("hidden");
+    isWhiteTurn = true;
+    selectedCell = null;
+    currentMoves = [];
+    await renderBoard();
+}
+
+function startGame() {
+    document.getElementById("start-modal").classList.add("hidden");
+}
+
 renderBoard();

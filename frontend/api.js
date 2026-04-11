@@ -27,5 +27,5 @@ async function fetchMove(act_row,act_col,future_row,future_col,is_white){
                           is_white:is_white})
   });
   const data = await response.json();
-  return data.status;
+  return data;
 }

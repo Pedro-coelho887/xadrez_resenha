@@ -52,5 +52,18 @@ def move(data:dict):
     act_pos = tuple(data["position"]["actual"])
     new_pos = tuple(data["position"]["new"])
     is_white = data["is_white"]
+
     sucess = game.execute_move(act_pos,new_pos,is_white)
-    return {"status": "ok" if sucess else "invalid"}
+    response = {"status": "ok" if sucess else "invalid",
+                "check":{"status":False}}
+
+    if sucess and game.in_check:
+        defender = not is_white
+        king_pos = game.kings["white"] if defender else game.kings["black"]
+        response["check"] = {"status":True,"king_pos":king_pos,"checkmate":game.checkmate}
+    return response
+
+@app.post("/restart")
+def restart():
+    game.reset()
+    return {"status": "ok"}

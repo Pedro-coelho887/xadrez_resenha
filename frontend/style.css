@@ -28,6 +28,11 @@ body {
   top: 0;
   left: 0;
 }
+
+.cell img.visible {
+    opacity: 1;
+}
+
 .light {
   background-color: #07383d;
 }
@@ -45,4 +50,75 @@ body {
     border-radius: 50%;
     margin: auto;
     margin-top: 35%;
+}
+
+.in_check{
+  background-color: rgb(139, 17, 17) !important;
+}
+
+#checkmate-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#checkmate-content {
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+#start-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#start-content {
+    text-align: center;
+    color: white;
+}
+
+#start-content h1 {
+    font-size: 3rem;
+    margin-bottom: 10px;
+}
+
+#start-content p {
+    font-size: 1.2rem;
+    margin-bottom: 30px;
+    color: #aaa;
+}
+
+#start-content button {
+    padding: 12px 32px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    border-radius: 6px;
+    background-color: white;
+    color: black;
+}
+
+.cell img {
+    transition: opacity 0.15s ease;
+}
+
+.fading {
+    opacity: 0;
 }

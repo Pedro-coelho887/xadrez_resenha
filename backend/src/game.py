@@ -34,6 +34,10 @@ class Game:
                 self.board[x][y] = piece
         self.calculate_all_targets()
 
+    def reset(self):
+        self.__init__()
+        self.fill_pieces()
+
     def calculate_all_targets(self):
         self.targets["white"] = set()
         self.targets["black"] = set()
@@ -148,6 +152,8 @@ class Game:
                 print("checkmate! "+f"{is_white}"+" venceu!")
         else:
             self.in_check = False
+
+        return True
     
 
 
