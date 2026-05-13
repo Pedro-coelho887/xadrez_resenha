@@ -93,6 +93,19 @@ class TestMovement(unittest.TestCase):
         self.assertIn((7, 4), moves)  # vertical
         self.assertIn((7, 7), moves)  # diagonal
 
+    def test_pawn_first_move_white(self):
+        """Peão branco na linha inicial deve poder avançar duas casas"""
+        self.game.board[6][4] = Pawn(id=0, is_white=True)
+        moves = self.game.get_moves((6, 4), is_white=True)
+        self.assertIn((4, 4), moves)
+
+    def test_pawn_double_step_blocked_at_intermediate(self):
+        """Peão não pode avançar duas casas se a casa intermediária está ocupada"""
+        self.game.board[6][4] = Pawn(id=0, is_white=True)
+        self.game.board[5][4] = Pawn(id=1, is_white=False)
+        moves = self.game.get_moves((6, 4), is_white=True)
+        self.assertNotIn((4, 4), moves)
+
     def test_wrong_team_cannot_move(self):
         """Não deve ser possível mover peça do time adversário"""
         self.game.board[4][4] = Pawn(id=1, is_white=False)
