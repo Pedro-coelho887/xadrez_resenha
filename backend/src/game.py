@@ -11,7 +11,7 @@ class Game:
     def __init__(self):
         self.board: list[list[Optional[Piece]]] = [[None] * 8 for _ in range(8)]
         self.targets = {'black':set(),'white':set()}
-        self.kings = {'black':(0,3),'white':(7,3)}
+        self.kings = {'black':(0,4),'white':(7,4)}
         self.in_check = False
         self.checkmate = False
         self.promotion_pending = False
@@ -19,7 +19,7 @@ class Game:
 
     def fill_pieces(self):
         """Preenche Tabuleiro com peças padrão"""
-        pieces_init = {0:Rook, 1:Knight, 2:Bishop, 3:King, 4:Queen, 5:Bishop, 6:Knight, 7:Rook}
+        pieces_init = {0:Rook, 1:Knight, 2:Bishop, 3:Queen, 4:King, 5:Bishop, 6:Knight, 7:Rook}
         for x in [0,1,6,7]:
             is_white = x>2
 
@@ -135,12 +135,47 @@ class Game:
             if self.simulate_move(act_pos,opt):
                 legal_options.append(opt)
 
+        if piece.type == 4:
+            legal_options += self.get_castling_moves(act_pos, is_white)
         return legal_options
-    
+
+    def get_castling_moves(self, king_pos, is_white):
+        castling = []
+        row, col = king_pos
+        king = self.board[row][col]
+        if king is None or king.has_moved:
+            return castling
+
+        self.calculate_all_targets()
+        enemy = "black" if is_white else "white"
+
+        if king_pos in self.targets[enemy]:
+            return castling
+
+        # Kingside: Torre em col 7, Rei vai para col 6
+        rook_ks = self.board[row][7]
+        if (rook_ks is not None and rook_ks.type == 3 and not rook_ks.has_moved
+                and all(self.board[row][c] is None for c in [5, 6])
+                and (row, 5) not in self.targets[enemy]
+                and (row, 6) not in self.targets[enemy]):
+            castling.append((row, 6))
+
+        # Queenside: Torre em col 0, Rei vai para col 2
+        rook_qs = self.board[row][0]
+        if (rook_qs is not None and rook_qs.type == 3 and not rook_qs.has_moved
+                and all(self.board[row][c] is None for c in [1, 2, 3])
+                and (row, 3) not in self.targets[enemy]
+                and (row, 2) not in self.targets[enemy]):
+            castling.append((row, 2))
+
+        return castling
+
     def promote(self, pos, piece_type):
         piece_map = {3: Rook, 5: Bishop, 6: Queen, 7: Knight}
         pawn = self.board[pos[0]][pos[1]]
         self.board[pos[0]][pos[1]] = piece_map[piece_type](id=pawn.id, is_white=pawn.is_white)
+        if piece_type == 3:
+            self.board[pos[0]][pos[1]].has_moved = True
         self.promotion_pending = False
         self.promotion_pos = None
         in_check = self.valid_check(pos)
@@ -160,6 +195,16 @@ class Game:
             return False
         self.move(act_pos, future_pos)
         piece = self.board[future_pos[0]][future_pos[1]]
+        if piece.type in (3, 4):
+            piece.has_moved = True
+        if piece.type == 4 and abs(future_pos[1] - act_pos[1]) == 2:
+            row = future_pos[0]
+            if future_pos[1] == 6:
+                self.move((row, 7), (row, 5))
+                self.board[row][5].has_moved = True
+            else:
+                self.move((row, 0), (row, 3))
+                self.board[row][3].has_moved = True
         if piece.type == 2 and (future_pos[0] == 0 or future_pos[0] == 7):
             self.promotion_pending = True
             self.promotion_pos = future_pos
