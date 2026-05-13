@@ -16,6 +16,15 @@ async function fetchPossibleMoves(row,col,is_white){
   return data.moves;
 }
 
+async function promotePawn(pos, pieceType) {
+  const response = await fetch("http://127.0.0.1:8000/pawn_promotion", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pos, piece_type: pieceType })
+  });
+  return response.json();
+}
+
 async function fetchMove(act_row,act_col,future_row,future_col,is_white){
   const response = await fetch("http://127.0.0.1:8000/move",{
     method:"POST",

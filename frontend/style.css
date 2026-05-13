@@ -56,6 +56,48 @@ body {
   background-color: rgb(139, 17, 17) !important;
 }
 
+#promotion-modal {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+
+#promotion-content {
+    background-color: #1E1E2E;
+    padding: 32px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+}
+
+#promotion-content h2 {
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+}
+
+#promotion-choices {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+}
+
+#promotion-choices img {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: transform 0.1s ease;
+}
+
+#promotion-choices img:hover {
+    transform: scale(1.15);
+}
+
 #checkmate-modal {
     position: fixed;
     top: 0; left: 0;

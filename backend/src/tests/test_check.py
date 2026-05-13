@@ -154,5 +154,60 @@ class TestCheckmate(unittest.TestCase):
         self.assertFalse(self.game.checkmate)
  
 
+class TestPromotion(unittest.TestCase):
+
+    def setUp(self):
+        self.game = Game()
+
+    def test_promotion_sets_pending(self):
+        """execute_move com peão na penúltima fileira deve setar promotion_pending"""
+        self.game.board[7][7] = King(id=1, is_white=True)
+        self.game.kings["white"] = (7, 7)
+        self.game.board[0][7] = King(id=2, is_white=False)
+        self.game.kings["black"] = (0, 7)
+        self.game.board[1][4] = Pawn(id=10, is_white=True)
+        self.game.execute_move((1, 4), (0, 4), is_white=True)
+        self.assertTrue(self.game.promotion_pending)
+        self.assertEqual(self.game.promotion_pos, (0, 4))
+
+    def test_promotion_replaces_pawn(self):
+        """promote deve substituir peão por Rainha mantendo o id original"""
+        self.game.board[7][7] = King(id=1, is_white=True)
+        self.game.kings["white"] = (7, 7)
+        self.game.board[7][0] = King(id=2, is_white=False)
+        self.game.kings["black"] = (7, 0)
+        self.game.board[0][4] = Pawn(id=10, is_white=True)
+        self.game.promotion_pending = True
+        self.game.promote((0, 4), 6)
+        piece = self.game.board[0][4]
+        self.assertEqual(piece.type, 6)
+        self.assertEqual(piece.id, 10)
+        self.assertFalse(self.game.promotion_pending)
+
+    def test_promotion_gives_check(self):
+        """Rainha promovida na mesma fileira do rei inimigo deve dar check"""
+        self.game.board[7][7] = King(id=1, is_white=True)
+        self.game.kings["white"] = (7, 7)
+        self.game.board[0][0] = King(id=2, is_white=False)
+        self.game.kings["black"] = (0, 0)
+        self.game.board[0][4] = Pawn(id=10, is_white=True)
+        self.game.promotion_pending = True
+        self.game.promote((0, 4), 6)
+        self.assertTrue(self.game.in_check)
+
+    def test_promotion_gives_checkmate(self):
+        """Promoção deve dar checkmate quando rei inimigo não tem escapes"""
+        self.game.board[0][7] = King(id=1, is_white=False)
+        self.game.kings["black"] = (0, 7)
+        self.game.board[1][7] = Pawn(id=3, is_white=False)
+        self.game.board[1][6] = Pawn(id=4, is_white=False)
+        self.game.board[7][0] = King(id=2, is_white=True)
+        self.game.kings["white"] = (7, 0)
+        self.game.board[0][1] = Pawn(id=10, is_white=True)
+        self.game.promotion_pending = True
+        self.game.promote((0, 1), 6)
+        self.assertTrue(self.game.checkmate)
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2, buffer=False,defaultTest="TestCheckmate")

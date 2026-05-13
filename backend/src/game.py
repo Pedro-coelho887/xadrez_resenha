@@ -14,6 +14,8 @@ class Game:
         self.kings = {'black':(0,3),'white':(7,3)}
         self.in_check = False
         self.checkmate = False
+        self.promotion_pending = False
+        self.promotion_pos = None
 
     def fill_pieces(self):
         """Preenche Tabuleiro com peças padrão"""
@@ -135,6 +137,19 @@ class Game:
 
         return legal_options
     
+    def promote(self, pos, piece_type):
+        piece_map = {3: Rook, 5: Bishop, 6: Queen, 7: Knight}
+        pawn = self.board[pos[0]][pos[1]]
+        self.board[pos[0]][pos[1]] = piece_map[piece_type](id=pawn.id, is_white=pawn.is_white)
+        self.promotion_pending = False
+        self.promotion_pos = None
+        in_check = self.valid_check(pos)
+        if in_check != 0:
+            self.in_check = True
+            self.checkmate = self.valid_checkmate(not pawn.is_white)
+        else:
+            self.in_check = False
+
     def execute_move(self, act_pos, future_pos, is_white):
         """Executa o movimento e atualiza o estado do jogo"""
         piece = self.board[act_pos[0]][act_pos[1]]
@@ -144,6 +159,11 @@ class Game:
         if tuple(future_pos) not in options:
             return False
         self.move(act_pos, future_pos)
+        piece = self.board[future_pos[0]][future_pos[1]]
+        if piece.type == 2 and (future_pos[0] == 0 or future_pos[0] == 7):
+            self.promotion_pending = True
+            self.promotion_pos = future_pos
+            return True
         in_check = self.valid_check(future_pos)
         if in_check != 0:
             self.in_check = True
