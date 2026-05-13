@@ -57,10 +57,27 @@ def move(data:dict):
     response = {"status": "ok" if sucess else "invalid",
                 "check":{"status":False}}
 
+    if sucess and game.promotion_pending:
+        response["promotion_pending"] = True
+        response["promotion_pos"] = list(game.promotion_pos) #type:ignore
+        return response
+    response["promotion_pending"] = False
     if sucess and game.in_check:
         defender = not is_white
         king_pos = game.kings["white"] if defender else game.kings["black"]
         response["check"] = {"status":True,"king_pos":king_pos,"checkmate":game.checkmate}
+    return response
+
+@app.post("/pawn_promotion")
+def pawn_promotion(data: dict):
+    pos = tuple(data["pos"])
+    piece_type = data["piece_type"]
+    game.promote(pos, piece_type)
+    response = {"status": "ok", "check": {"status": False}}
+    if game.in_check:
+        attacker_is_white = game.board[pos[0]][pos[1]].is_white
+        king_pos = game.kings["black"] if attacker_is_white else game.kings["white"]
+        response["check"] = {"status": True, "king_pos": king_pos, "checkmate": game.checkmate}
     return response
 
 @app.post("/restart")

@@ -76,6 +76,7 @@ async function onCellClick(row, col) {
         document.querySelectorAll(".cell img").forEach(img => img.classList.add("fading"));
         setTimeout(resolve, 150);
         });
+        const promotingIsWhite = isWhiteTurn;
         const result = await fetchMove(selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
         isWhiteTurn = !isWhiteTurn
         selectedCell = null;
@@ -85,6 +86,11 @@ async function onCellClick(row, col) {
 
         await new Promise(resolve => setTimeout(resolve, 20));
         document.querySelectorAll(".cell img").forEach(img => img.classList.remove("fading"));
+
+        if (result.promotion_pending) {
+            showPromotionModal(result.promotion_pos, promotingIsWhite);
+            return;
+        }
         // Tratamento de Check
         // limpa check anterior
         document.querySelectorAll(".in_check").forEach(c => c.classList.remove("in-check"));
@@ -104,6 +110,42 @@ async function onCellClick(row, col) {
         selectedCell = [row, col];
         currentMoves = await fetchPossibleMoves(row, col,isWhiteTurn);
         highlightMoves(currentMoves);
+    }
+}
+
+function showPromotionModal(pos, isWhite) {
+    const color = isWhite ? "pink" : "blue";
+    const choices = document.getElementById("promotion-choices");
+    choices.innerHTML = "";
+    const promotable = [
+        { type: 6, name: "queen" },
+        { type: 3, name: "rook" },
+        { type: 5, name: "bishop" },
+        { type: 7, name: "knight" }
+    ];
+    promotable.forEach(({ type, name }) => {
+        const img = document.createElement("img");
+        img.src = `graphics/${color}/${color}_${name}.png`;
+        img.addEventListener("click", () => onPromotionChoice(pos, type));
+        choices.appendChild(img);
+    });
+    document.getElementById("promotion-modal").classList.remove("hidden");
+}
+
+async function onPromotionChoice(pos, pieceType) {
+    document.getElementById("promotion-modal").classList.add("hidden");
+    const result = await promotePawn(pos, pieceType);
+    await renderBoardAnimated();
+    document.querySelectorAll(".in_check").forEach(c => c.classList.remove("in_check"));
+    if (result.check.status) {
+        const [r, c] = result.check.king_pos;
+        const kingCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+        if (kingCell) kingCell.classList.add("in_check");
+        if (result.check.checkmate) {
+            const winner = isWhiteTurn ? "Azul" : "Rosa";
+            document.getElementById("winner-text").textContent = `Time ${winner} Ganhou!`;
+            document.getElementById("checkmate-modal").classList.remove("hidden");
+        }
     }
 }
 
