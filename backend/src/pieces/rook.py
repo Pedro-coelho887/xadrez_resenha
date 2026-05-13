@@ -3,6 +3,7 @@ class Rook(Piece):
     def __init__(self,id,is_white):
         super().__init__(id=id,type=3,is_white=is_white)
         self.directions = [(1,0),(0,1),(-1,0),(0,-1)]
+        self.has_moved = False
     def calculate_moves(self, act_pos, board):
         options = []
         # Calculo de Movimentos base

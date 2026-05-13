@@ -3,6 +3,7 @@ class King(Piece):
     def __init__(self,id,is_white):
         super().__init__(id=id,type=4,is_white=is_white)
         self.directions = [(1,0),(-1,0),(0,1),(0,-1),(1,1),(1,-1),(-1,1),(-1,-1)]
+        self.has_moved = False
     def calculate_moves(self, act_pos,board):
         options = []
         for dx,dy in self.directions:
