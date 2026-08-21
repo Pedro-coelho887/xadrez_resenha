@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from fastapi import FastAPI
-from src.game import Game
+from game import Game
 
 app = FastAPI()
 
