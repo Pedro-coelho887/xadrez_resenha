@@ -4,11 +4,48 @@ const pieces_dict = {
     5:"bishop.png>", 6:"queen.png>", 7:"knight.png>"
 }
 let selectedCell = null;
-let currentMoves = [];    
+let currentMoves = [];
 let isWhiteTurn = true;
-async function renderBoard() {
+// O backend é sem estado: a partida vive aqui e viaja em cada requisição
+let gameState = null;
+
+const SAVE_KEY = "xadrez_resenha_partida";
+
+function saveGame() {
+    try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify({ state: gameState, isWhiteTurn }));
+    } catch (e) {
+        // localStorage indisponível (aba anônima, cookies bloqueados): segue sem salvar
+    }
+}
+
+function loadSavedGame() {
+    try {
+        const saved = JSON.parse(localStorage.getItem(SAVE_KEY));
+        if (saved && saved.state && saved.state.board) {
+            gameState = saved.state;
+            isWhiteTurn = saved.isWhiteTurn;
+            return true;
+        }
+    } catch (e) {
+        // Save corrompido ou de uma versão antiga: começa partida nova
+    }
+    return false;
+}
+
+async function initGame() {
+    const response = await newGame();
+    gameState = response.state;
+    isWhiteTurn = true;
+    selectedCell = null;
+    currentMoves = [];
+    saveGame();
+    renderBoard();
+}
+
+function renderBoard() {
     board.innerHTML = '';
-    const board_info = await fetchBoard()
+    const board_info = gameState.board
     for (let row=0;row<8;row++){
         for (let col = 0; col<8;col++){
             const cell = document.createElement("div");
@@ -49,7 +86,7 @@ async function renderBoardAnimated() {
 
     await new Promise(resolve => setTimeout(resolve, 150)); // espera transição
 
-    await renderBoard(); // re-renderiza (limpa e recria o board)
+    renderBoard(); // re-renderiza (limpa e recria o board)
 
     // força o navegador a reconhecer o estado inicial antes do fade in
     await new Promise(resolve => setTimeout(resolve, 20));
@@ -77,12 +114,14 @@ async function onCellClick(row, col) {
         setTimeout(resolve, 150);
         });
         const promotingIsWhite = isWhiteTurn;
-        const result = await fetchMove(selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
+        const result = await fetchMove(gameState, selectedCell[0], selectedCell[1], row, col,isWhiteTurn);
+        gameState = result.state;
         isWhiteTurn = !isWhiteTurn
         selectedCell = null;
         currentMoves = [];
+        saveGame();
         await fadePromise;
-        await renderBoard(); // re-renderiza
+        renderBoard(); // re-renderiza
 
         await new Promise(resolve => setTimeout(resolve, 20));
         document.querySelectorAll(".cell img").forEach(img => img.classList.remove("fading"));
@@ -108,7 +147,7 @@ async function onCellClick(row, col) {
         }
     } else {
         selectedCell = [row, col];
-        currentMoves = await fetchPossibleMoves(row, col,isWhiteTurn);
+        currentMoves = await fetchPossibleMoves(gameState, row, col,isWhiteTurn);
         highlightMoves(currentMoves);
     }
 }
@@ -134,7 +173,9 @@ function showPromotionModal(pos, isWhite) {
 
 async function onPromotionChoice(pos, pieceType) {
     document.getElementById("promotion-modal").classList.add("hidden");
-    const result = await promotePawn(pos, pieceType);
+    const result = await promotePawn(gameState, pos, pieceType);
+    gameState = result.state;
+    saveGame();
     await renderBoardAnimated();
     document.querySelectorAll(".in_check").forEach(c => c.classList.remove("in_check"));
     if (result.check.status) {
@@ -150,16 +191,17 @@ async function onPromotionChoice(pos, pieceType) {
 }
 
 async function restartGame() {
-    await fetch("http://127.0.0.1:8000/restart", { method: "POST" });
     document.getElementById("checkmate-modal").classList.add("hidden");
-    isWhiteTurn = true;
-    selectedCell = null;
-    currentMoves = [];
-    await renderBoard();
+    await initGame();
 }
 
 function startGame() {
     document.getElementById("start-modal").classList.add("hidden");
 }
 
-renderBoard();
+// Retoma a partida salva no navegador; se não houver, pede uma nova ao backend
+if (loadSavedGame()) {
+    renderBoard();
+} else {
+    initGame();
+}
