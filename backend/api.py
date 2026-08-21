@@ -4,6 +4,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from fastapi import APIRouter, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from game import Game
 
 app = FastAPI()
@@ -73,3 +74,9 @@ def pawn_promotion(data: dict):
     return response
 
 app.include_router(router)
+
+# O frontend é servido pelo próprio app: a Vercel trata o projeto como
+# backend framework e manda todo o tráfego para cá.
+# Precisa vir por último — um mount em "/" casa com tudo.
+FRONTEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
+app.mount("/", StaticFiles(directory=FRONTEND_DIR, html=True), name="frontend")
