@@ -1,0 +1,5 @@
+venv/
+__pycache__/
+backend/src/tests/
+*.pyc
+*:Zone.Identifier

@@ -6,7 +6,16 @@ class Piece:
 
     def __str__(self):
         return str(self.type)
-    
+
+    def to_dict(self):
+        """Serializa a peça para enviar para servidor"""
+        return {
+            "type": self.type,
+            "is_white": self.is_white,
+            "id": self.id,
+            "has_moved": getattr(self, "has_moved", False),
+        }
+
     def calculate_moves(self, act_pos, board):
         """Calcula os possíveis movimentos da peça básica"""
         options = []

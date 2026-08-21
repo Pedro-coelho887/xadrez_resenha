@@ -7,6 +7,9 @@ from pieces.bishop import Bishop
 from pieces.queen import Queen
 from pieces.knight import Knight
 
+# Mapeia o type de cada peça para a classe, usado na desserialização
+PIECE_TYPES = {2: Pawn, 3: Rook, 4: King, 5: Bishop, 6: Queen, 7: Knight}
+
 class Game:
     def __init__(self):
         self.board: list[list[Optional[Piece]]] = [[None] * 8 for _ in range(8)]
@@ -39,6 +42,43 @@ class Game:
     def reset(self):
         self.__init__()
         self.fill_pieces()
+
+    def to_dict(self):
+        """Serializa a partida inteira para trafegar na resposta da API.
+        """
+        return {
+            "board": [[piece.to_dict() if piece else None for piece in row]
+                      for row in self.board],
+            "kings": {"white": list(self.kings["white"]),
+                      "black": list(self.kings["black"])},
+            "in_check": self.in_check,
+            "checkmate": self.checkmate,
+            "promotion_pending": self.promotion_pending,
+            "promotion_pos": list(self.promotion_pos) if self.promotion_pos else None,
+        }
+
+    @classmethod
+    def from_dict(cls, data):
+        """Reconstrói a partida a partir do estado enviado pelo cliente"""
+        game = cls()
+        for row, serialized_row in enumerate(data["board"]):
+            for col, serialized in enumerate(serialized_row):
+                if serialized is None:
+                    continue
+                piece = PIECE_TYPES[serialized["type"]](id=serialized["id"],
+                                                        is_white=serialized["is_white"])
+                if hasattr(piece, "has_moved"):
+                    piece.has_moved = serialized.get("has_moved", False)
+                game.board[row][col] = piece
+        # kings e promotion_pos viram tupla: são comparados com os sets de targets
+        game.kings = {team: tuple(pos) for team, pos in data["kings"].items()}
+        game.in_check = data["in_check"]
+        game.checkmate = data["checkmate"]
+        game.promotion_pending = data["promotion_pending"]
+        promotion_pos = data["promotion_pos"]
+        game.promotion_pos = tuple(promotion_pos) if promotion_pos else None
+        game.calculate_all_targets()
+        return game
 
     def calculate_all_targets(self):
         self.targets["white"] = set()
